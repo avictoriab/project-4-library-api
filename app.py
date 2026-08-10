@@ -73,5 +73,50 @@ def get_book(book_id):
 
     return jsonify(response)
 
+@app.route("/books/<int:book_id>", methods=["PUT"])
+def update_book(book_id):
+    session = Session()
+
+    book = session.query(Book).filter_by(id=book_id).first()
+
+    if book is None:
+        session.close()
+        return jsonify({"error": "Book not found"}), 404
+
+    data = request.get_json()
+
+    book.title = data["title"]
+    book.author = data["author"]
+
+    session.commit()
+
+    response = {
+        "id": book.id,
+        "title": book.title,
+        "author": book.author
+    }
+
+    session.close()
+
+    return jsonify(response)
+
+@app.route("/books/<int:book_id>", methods=["DELETE"])
+def delete_book(book_id):
+    session = Session()
+    
+    book = session.query(Book).filter_by(id=book_id).first()
+
+    if book is None:
+        session.close()
+        return jsonify({"error": "Book not found"}), 404
+
+    session.delete(book)
+
+    session.commit()
+
+    session.close()
+
+    return jsonify("message:" "Book deleted")
+
 if __name__ == "__main__":
     app.run(debug=True)
