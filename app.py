@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from database import Session
 from models import Book
+from schema import BookSchema, ValidationError
 
 app = Flask(__name__)
 
@@ -35,10 +36,15 @@ def get_books():
 def create_book():
     session = Session()
     data = request.get_json()
+
+    try: 
+        book_data = BookSchema(**data)
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400 
     
     book = Book(
-        title = data['title'],
-        author = data['author']
+        title = book_data.title,
+        author = book_data.author
     )
 
     session.add(book)
@@ -85,8 +91,13 @@ def update_book(book_id):
 
     data = request.get_json()
 
-    book.title = data["title"]
-    book.author = data["author"]
+    try: 
+        book_data = BookSchema(**data)
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400 
+
+    book.title = book_data.title
+    book.author = book_data.author
 
     session.commit()
 
