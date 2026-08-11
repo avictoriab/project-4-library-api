@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request
 from database import Session
-from models import Book
-from schema import BookSchema, ValidationError
+from models import Book, User
+from schema import BookSchema, UserSchema, ValidationError
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 
@@ -128,6 +129,27 @@ def delete_book(book_id):
     session.close()
 
     return jsonify("message:" "Book deleted")
+
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+
+    try:
+        user_data = UserSchema(**data)
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400
+
+    user = User(
+    username=user_data.username,
+    password=generate_password_hash(user_data.password)
+    )
+
+    session = Session()
+    session.add(user)
+    session.commit()
+    session.close()
+
+    return jsonify({"message": "User registered successfully"}), 201
 
 if __name__ == "__main__":
     app.run(debug=True)
