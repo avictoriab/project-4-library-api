@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
+from routes.auth import token_required
+
 from database import Session
 from models import Book
 from schemas import BookSchema
@@ -27,7 +29,8 @@ def get_books():
     })
 
 @books.route("/books", methods=["POST"])
-def create_book():
+@token_required
+def create_book(user):
     session = Session()
     data = request.get_json()
 
