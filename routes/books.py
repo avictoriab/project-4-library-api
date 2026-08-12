@@ -77,7 +77,8 @@ def get_book(book_id):
     return jsonify(response)
 
 @books.route("/books/<int:book_id>", methods=["PUT"])
-def update_book(book_id):
+@token_required
+def update_book(user, book_id):
     session = Session()
 
     book = session.query(Book).filter_by(id=book_id).first()
@@ -109,7 +110,8 @@ def update_book(book_id):
     return jsonify(response)
 
 @books.route("/books/<int:book_id>", methods=["DELETE"])
-def delete_book(book_id):
+@token_required
+def delete_book(user, book_id):
     session = Session()
     
     book = session.query(Book).filter_by(id=book_id).first()
