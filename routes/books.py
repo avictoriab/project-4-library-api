@@ -41,7 +41,8 @@ def create_book(user):
     
     book = Book(
         title = book_data.title,
-        author = book_data.author
+        author = book_data.author,
+        user_id = user.id
     )
 
     session.add(book)
@@ -50,11 +51,12 @@ def create_book(user):
     response = {
         "id": book.id,
         "title": book.title,
-        "author": book.author
+        "author": book.author,
+        "user_id": book.user_id
     }
     session.close()
 
-    return jsonify(response)
+    return jsonify(response), 201
 
 @books.route("/books/<int:book_id>")
 def get_book(book_id):
@@ -87,6 +89,10 @@ def update_book(user, book_id):
         session.close()
         return jsonify({"error": "Book not found"}), 404
 
+    if book.user_id != user.id:
+        session.close()
+        return jsonify({"error": "You do not have permission to modify this book"}), 403
+
     data = request.get_json()
 
     try: 
@@ -102,7 +108,8 @@ def update_book(user, book_id):
     response = {
         "id": book.id,
         "title": book.title,
-        "author": book.author
+        "author": book.author,
+        "user_id": book.user_id
     }
 
     session.close()
@@ -120,11 +127,15 @@ def delete_book(user, book_id):
         session.close()
         return jsonify({"error": "Book not found"}), 404
 
+    if book.user_id != user.id:
+        session.close()
+        return jsonify({"error": "You do not have permission to delete this book"}), 403
+
     session.delete(book)
 
     session.commit()
 
     session.close()
 
-    return jsonify("message:" "Book deleted")
+    return jsonify({"message": "Book deleted"})
 
