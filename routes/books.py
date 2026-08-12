@@ -139,3 +139,25 @@ def delete_book(user, book_id):
 
     return jsonify({"message": "Book deleted"})
 
+@books.route("/my-books", methods=["GET"])
+@token_required
+def get_my_books(user):
+    session = Session()
+
+    books = session.query(Book).filter_by(user_id=user.id).all()
+
+    if not books:
+        session.close()
+        return jsonify({"message": "You have no books"}), 200
+
+    session.close()
+
+    return jsonify([
+        {
+            "id": book.id,
+            "title": book.title,
+            "author": book.author,
+            "user_id": book.user_id
+        }
+        for book in books
+    ]), 200
