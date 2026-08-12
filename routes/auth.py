@@ -1,8 +1,13 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
+from config import JWT_SECRET_KEY
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+
+import jwt
+from datetime import datetime, timedelta
+from config import JWT_SECRET_KEY
 
 from database import Session
 from models import User
@@ -56,6 +61,15 @@ def login():
     if not check_password_hash(user.password, user_data.password):
          return jsonify({"error": "Invalid credentials"}), 401
 
+    token = jwt.encode(
+    {
+        "user_id": user.id,
+        "exp": datetime.utcnow() + timedelta(hours=1)
+    },
+    JWT_SECRET_KEY,
+    algorithm="HS256"
+    )
+
     session.close()
 
-    return jsonify({"message": "Login successful"})
+    return jsonify({"token": token})
