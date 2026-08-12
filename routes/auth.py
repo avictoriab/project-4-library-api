@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
+
 from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 from database import Session
 from models import User
@@ -35,3 +37,25 @@ def register():
     session.close()
 
     return jsonify({"message": "User registered successfully"}), 201
+
+@auth.route("/login", methods=["POST"])
+def login():
+    session = Session()
+    data = request.get_json()
+
+    try:
+        user_data = UserSchema(**data)
+    except ValidationError as e:
+            return jsonify({"error": e.errors()}), 400
+
+    user = session.query(User).filter_by(username=user_data.username).first()
+
+    if user is None:
+         return jsonify({"error": "Invalid credentials"}), 401
+
+    if not check_password_hash(user.password, user_data.password):
+         return jsonify({"error": "Invalid credentials"}), 401
+
+    session.close()
+
+    return jsonify({"message": "Login successful"})
