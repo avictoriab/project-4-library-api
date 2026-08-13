@@ -3,10 +3,13 @@ from flask import Flask, jsonify
 from routes.auth import auth
 from routes.books import books
 
+
 app = Flask(__name__)
+
 
 app.register_blueprint(auth)
 app.register_blueprint(books)
+
 
 @app.route("/")
 def home():
