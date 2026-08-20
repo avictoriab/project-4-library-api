@@ -15,6 +15,9 @@ A RESTful API built with Flask for managing a library of books with user authent
 * SQLAlchemy ORM with SQLite
 * Consistent HTTP status codes and error responses
 * Tested with Postman
+* Dockerized application
+* Docker Compose configuration
+* Persistent SQLite database using a bind mount
 
 ## Technologies
 
@@ -26,6 +29,8 @@ A RESTful API built with Flask for managing a library of books with user authent
 * SQLite
 * python-dotenv
 * Postman
+* Docker
+* Docker Compose
 
 ## Project Structure
 
@@ -39,8 +44,14 @@ library-api/
 ├── schemas.py
 ├── create_db.py
 ├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
 ├── .gitignore
-├── .env
+├── .env.example
+│
+├── database/
+│   └── .gitkeep
 │
 └── routes/
     ├── auth.py
@@ -207,6 +218,8 @@ The `.env` file is excluded from version control through `.gitignore`.
 
 ## Setup
 
+### Running the API locally
+
 Clone the repository and create a virtual environment:
 
 ```bash
@@ -245,6 +258,31 @@ The API will be available at:
 http://127.0.0.1:5000
 ```
 
+### Running with Docker
+
+Create a `.env` file based on `.env.example` and configure the required environment variables.
+
+
+Build and start the application:
+
+```bash
+docker compose up
+```
+
+The API will be available at:
+
+```text
+http://localhost:5000
+```
+
+To stop the application:
+
+```bash
+docker compose down
+```
+
+The SQLite database is persisted through a bind mount, so database changes remain available when the Docker container is recreated.
+
 ## Testing
 
 The API was tested using Postman, including:
@@ -259,10 +297,12 @@ The API was tested using Postman, including:
 * Resource ownership
 * Unauthorized update and delete attempts
 * User-specific book retrieval
+* API execution inside a Docker container
+* Database persistence across container recreation
 
 ## What I Learned
 
-This project focused on building a backend API with authentication and authorization.
+This project focused on building a backend API with authentication, authorization and containerization.
 
 Key concepts practiced:
 
@@ -278,3 +318,7 @@ Key concepts practiced:
 * Database session management
 * Resource ownership and access control
 * HTTP status codes and API error handling
+* Docker containerization
+* Docker Compose
+* Containerized application configuration
+* Database persistence with bind mounts
